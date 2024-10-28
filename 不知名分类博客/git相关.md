@@ -302,13 +302,13 @@ git pull origin master --allow-unrelated-histories
 如果你想保留本地的所有更改，也可以使用：
 
 ```
-git pull origin main --rebase
+git pull origin master --rebase
 ```
 
 最后，将更新后的内容推送到远程：
 
 ```
-git push -u origin main
+git push --set-upstream origin master
 ```
 
 需要注意的是，如果你的本地内容与远程内容差异较大，建议先备份本地重要文件，以防发生意外。
@@ -518,5 +518,24 @@ git branch -d feature/your-feature-name
 git push origin --delete feature/your-feature-name
 ```
 
+# 配置自动设置远程
 
+## 设置上游分支并推送
 
+1. **推送并设置上游分支**： 你可以使用以下命令，将本地 `master` 分支推送到远程 `origin` 并同时设置上游分支：
+
+2. ```
+   git push --set-upstream origin master
+   ```
+
+   这条命令将会把本地 `master` 分支的更改推送到远程 `origin` 的 `master` 分支，并将其设置为本地分支的上游分支。
+
+3. **后续推送**： 一旦设置了上游分支，以后你只需使用 `git push` 就可以将更改推送到远程。
+
+如果你希望以后所有新创建的分支在推送时都能自动设置上游分支，可以运行以下命令：
+
+```
+git config --global push.autoSetupRemote true
+```
+
+这样在创建新分支并推送时，Git 会自动将其与远程分支关联。
