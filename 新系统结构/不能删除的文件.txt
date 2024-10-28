@@ -1,0 +1,11 @@
+C盘初始化后的文件结构：（不能删除的文件夹）
+1. windows文件夹
+2. program和program（X86）
+3. 用户（user文件夹）
+4. system32文件夹
+5. programData
+6. pagefile.sys  hiberfil.sys  swapfile.sys
+7. intel
+
+D盘初始化后的文件结构：（不能删除的文件夹）
+1. 
