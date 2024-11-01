@@ -539,3 +539,136 @@ git config --global push.autoSetupRemote true
 ```
 
 这样在创建新分支并推送时，Git 会自动将其与远程分支关联。
+
+# 因为网络问题推送失败
+
+怎么推送不了？ $ git push fatal: unable to access 'https://github.com/HK-bruc1/My-Notes/': Failed to conne ct to github.com port 443 after 21098 ms: Could not connect to server
+
+这个错误通常是网络连接问题导致无法访问 GitHub。让我给你几个解决方案：
+
+1. **检查网络连接**
+
+```bash
+# 测试与GitHub的连接
+ping github.com
+
+# 或者使用curl测试
+curl -v https://github.com
+```
+
+2. **配置代理**（如果你使用代理上网）
+
+```bash
+# 设置 HTTP 代理
+git config --global http.proxy http://127.0.0.1:端口号
+
+# 设置 HTTPS 代理
+git config --global https.proxy https://127.0.0.1:端口号
+
+# 查看当前代理设置
+git config --global --get http.proxy
+git config --global --get https.proxy
+```
+
+3. **取消代理**（如果代理设置有问题）
+
+```bash
+# 取消代理设置
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```
+
+4. 使用SSH而不是HTTPS
+
+```
+# 检查当前远程URL
+git remote -v
+
+# 更改为SSH URL
+git remote set-url origin git@github.com:用户名/仓库名.git
+
+在 GitHub 上获取 SSH 链接的步骤：
+
+打开你的 GitHub 仓库（My-Notes）
+点击绿色的 "Code" 按钮（通常在页面右上方）
+在弹出的下拉菜单中：
+
+默认可能显示 HTTPS
+点击 "SSH" 选项卡
+会显示类似这样的链接：git@github.com:HK-bruc1/My-Notes.git
+点击复制按钮
+
+在本地更改远程仓库 URL：
+git remote set-url origin git@github.com:HK-bruc1/My-Notes.git
+
+验证更改：
+git remote -v
+# 应该显示：
+# origin  git@github.com:HK-bruc1/My-Notes.git (fetch)
+# origin  git@github.com:HK-bruc1/My-Notes.git (push)
+
+注意：如果你之前没有设置过 SSH key，需要：
+生成 SSH key：
+ssh-keygen -t ed25519 -C "319334854@qq.com"
+
+将公钥添加到 GitHub：
+
+复制 ~/.ssh/id_rsa.pub 文件内容
+在 GitHub 设置中添加 SSH key：
+
+点击头像 -> Settings
+左侧菜单找到 "SSH and GPG keys"
+点击 "New SSH key"
+粘贴公钥并保存
+
+测试 SSH 连接：
+ssh -T git@github.com
+```
+
+5. 刷新DNS缓存
+
+```bash
+# Windows
+ipconfig /flushdns
+
+# MacOS
+sudo killall -HUP mDNSResponder
+```
+
+6. **检查防火墙设置**
+
+- 确保Git可以通过防火墙访问网络
+- 端口443需要允许访问
+
+7. **更新hosts文件**
+
+```bash
+# 在hosts文件中添加GitHub的IP
+# Windows: C:\Windows\System32\drivers\etc\hosts
+# Linux/Mac: /etc/hosts
+
+140.82.114.4 github.com
+```
+
+如果以上方法都不行，你可以：
+
+1. 尝试使用VPN
+2. 检查是否是SSL证书问题
+3. 暂时禁用SSL验证（不推荐）：
+
+```bash
+git config --global http.sslVerify false
+```
+
+最后，如果问题仍然存在：
+
+1. 尝试清除Git凭据
+2. 重新安装Git
+3. 检查系统时间是否正确（SSL验证需要）
+
+记得操作完成后再次尝试推送：
+
+```bash
+git push -v origin main  # 使用-v查看详细输出
+```
+
