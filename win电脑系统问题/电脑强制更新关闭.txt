@@ -1,0 +1,3 @@
+在任务管理器在服务窗口停止了window update 启动类型改成了禁用
+在其内的恢复窗口把第一次失败的重新启动服务改成无操作
+在windows media network sharing窗口禁止了运行

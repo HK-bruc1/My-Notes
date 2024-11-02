@@ -1,0 +1,5 @@
+1.win+r
+2.regedit
+3.HEKY_CLASSES_ROOT   找到想要恢复默认打开方式的文件格式名（.chm）
+4.在HEKY_CURRENT_USER/SOFTWARE/Microsoft/Windows/CurrentVersion/Explorer/FileExts中找到.chm并删除；
+5.删除后，按下Ctrl+Alt+Delete打开任务管理器，右键“Windows 资源管理器”→“重新启动”；

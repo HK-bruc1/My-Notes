@@ -587,7 +587,7 @@ git remote -v
 # 更改为SSH URL
 git remote set-url origin git@github.com:用户名/仓库名.git
 
-在 GitHub 上获取 SSH 链接的步骤：
+在 GitHub 上获取 SSH 链接的步骤：（待整理）
 
 打开你的 GitHub 仓库（My-Notes）
 点击绿色的 "Code" 按钮（通常在页面右上方）
@@ -672,3 +672,84 @@ git config --global http.sslVerify false
 git push -v origin main  # 使用-v查看详细输出
 ```
 
+# 使用SSH连接GitHub
+
+是的,你可以通过添加 SSH key 到 ssh-agent 来避免重复输入密码。我来帮你解决这个问题。
+
+对于 Windows 系统(Git Bash),你可以按照以下步骤操作:
+
+1.首先确保 ssh-agent 正在运行:
+
+```bash
+eval "$(ssh-agent -s)"
+```
+
+2.添加你的 SSH 私钥到 ssh-agent:
+
+```bash
+ssh-add ~/.ssh/id_ed25519
+```
+
+3.为了让这个设置永久生效,你可以修改或创建 `~/.bashrc` 或 `~/.bash_profile` 文件,添加以下内容:
+
+```bash
+env=~/.ssh/agent.env
+agent_load_env () { test -f "$env" && . "$env" >| /dev/null ; }
+agent_start () {
+    (umask 077; ssh-agent >| "$env")
+    . "$env" >| /dev/null ; }
+agent_load_env
+# agent_run_state: 0=agent running w/ key; 1=agent w/o key; 2=agent not running
+agent_run_state=$(ssh-add -l >| /dev/null 2>&1; echo $?)
+if [ ! "$SSH_AUTH_SOCK" ] || [ $agent_run_state = 2 ]; then
+    agent_start
+    ssh-add
+elif [ "$SSH_AUTH_SOCK" ] && [ $agent_run_state = 1 ]; then
+    ssh-add
+fi
+unset env
+```
+
+你分享的这段脚本是一个更完整的解决方案。这个脚本确实可以实现永久生效,原理是:
+
+1. 将 SSH agent 的环境变量保存到文件中 (~/.ssh/agent.env)
+2. 每次启动时检查 agent 的状态
+3. 根据状态自动启动 agent 和添加密钥
+
+给文件添加执行权限:
+
+```bash
+chmod +x ~/.bashrc  # 或 ~/.bash_profile
+```
+
+使配置立即生效:
+
+```bash
+source ~/.bashrc  # 或 source ~/.bash_profile
+```
+
+这样设置后:
+
+- 每次打开新的终端窗口时,脚本都会自动运行
+- 如果 SSH agent 没在运行,会自动启动
+- 如果密钥没有添加,会自动添加
+- 即使重启电脑后也会自动生效
+
+这个方案比之前的更健壮,因为它会处理各种可能的状态。要验证是否生效,你可以:
+
+1. 关闭当前终端
+2. 打开新终端
+3. 尝试 git push 操作,看是否还需要输入密码
+
+4.如果你想让密钥在电脑重启后仍然保持,可以在 `~/.ssh/config` 文件中添加以下配置(如果文件不存在则创建):
+
+```bash
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    AddKeysToAgent yes
+    UseKeychain yes
+```
+
+完成这些设置后,你应该就不需要频繁输入密码了。需要注意的是,这样设置虽然方便,但要确保你的电脑安全,因为这意味着任何可以访问你电脑的人都能使用你的 GitHub 账户。
