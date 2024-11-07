@@ -672,7 +672,7 @@ git config --global http.sslVerify false
 git push -v origin main  # 使用-v查看详细输出
 ```
 
-# 使用SSH连接GitHub
+## 使用SSH连接GitHub
 
 是的,你可以通过添加 SSH key 到 ssh-agent 来避免重复输入密码。我来帮你解决这个问题。
 
@@ -753,3 +753,37 @@ Host github.com
 ```
 
 完成这些设置后,你应该就不需要频繁输入密码了。需要注意的是,这样设置虽然方便,但要确保你的电脑安全,因为这意味着任何可以访问你电脑的人都能使用你的 GitHub 账户。
+
+## bash开代理加速push
+
+我的git bash推送到远程仓库很慢，我用clash开了代理，我可以使用代理吗？ 
+
+```bash
+export https_proxy=http://127.0.0.1:7897 
+
+ttp_proxy=http://127.0.0.1:7897 
+
+all_proxy=socks5://127.0.0.1:7897
+```
+
+你可以在 Git Bash 中使用代理来加速推送。你的配置已经很接近正确了，只需要根据代理的实际协议和端口调整一下。如果你使用 Clash 并且代理端口确实是 `7897`，那你的配置可能看起来像这样：
+
+```c
+export https_proxy="http://127.0.0.1:7897"
+export http_proxy="http://127.0.0.1:7897"
+export all_proxy="socks5://127.0.0.1:7897"
+```
+
+可以按照以下步骤检查和验证代理是否生效：
+
+1. **确认 Clash 代理端口**：确保 Clash 的端口与配置的一致。可以在 Clash 配置文件或控制面板中查看。
+2. **验证网络连接**：在 Git Bash 中执行 `curl https://www.google.com` 或其他命令，确认代理是否成功连接外网。
+3. **测试 Git 推送**：在 Git Bash 中执行 `git push`，查看速度是否有所提升。
+
+如果仍然很慢，可以尝试将 `all_proxy` 改成 `http://127.0.0.1:7897` 或其他代理协议，或通过 Clash 面板调整规则。
+
+接下来，你可以尝试运行 `git push` 看是否能加速推送到远程仓库。如果 `git push` 速度仍然较慢，可能是网络环境的因素，你可以考虑以下几点来进一步优化：
+
+1. **确认代理协议**：如果当前使用的是 `socks5` 代理，可以尝试改成 `http` 或 `https`，看是否能带来不同的效果。
+2. **代理模式**：确认 Clash 处于全局模式（Global Mode）或者正确设置了规则模式（Rule Mode），这样 Git Bash 的流量才能被代理处理。
+3. **检查端口和连接稳定性**：如果有其他的代理端口，可以尝试不同端口的配置，或检查网络环境是否稳定。
