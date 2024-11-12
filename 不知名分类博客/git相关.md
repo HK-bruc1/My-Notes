@@ -754,6 +754,58 @@ Host github.com
 
 完成这些设置后,你应该就不需要频繁输入密码了。需要注意的是,这样设置虽然方便,但要确保你的电脑安全,因为这意味着任何可以访问你电脑的人都能使用你的 GitHub 账户。
 
+### 初始化其他本地仓库失败
+
+```bash
+$ git init
+Initialized empty Git repository in F:/MyCcode/.git/
+
+admin@DESKTOP-F444QLG MINGW64 /f/MyCcode
+$ git status
+fatal: detected dubious ownership in repository at 'F:/MyCcode'
+'F:/MyCcode' is owned by:
+        BUILTIN/Administrators (S-1-5-32-544)
+but the current user is:
+        DESKTOP-F444QLG/admin (S-1-5-21-516514792-3137146870-2865114690-1001)
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory F:/MyCcode
+```
+
+这是由于 Git 在 Windows 上引入了一个安全机制，防止潜在的恶意操作或数据损坏。它会检测仓库的所有权，如果仓库的所有者与当前用户不匹配，就会提示“dubious ownership”。
+
+解决方法
+
+1. **将仓库目录标记为安全目录**
+   使用以下命令将当前仓库路径标记为安全：
+
+```bash
+git config --global --add safe.directory F:/MyCcode
+```
+
+2. **更改目录的所有权**
+   如果你有权限，可以将 `F:/MyCcode` 目录的所有权更改为当前用户：
+
+   - 在 **Windows 文件资源管理器** 中右键点击 `F:/MyCcode`。
+
+   - 选择 **属性** > **安全** > **高级**。
+
+   - 更改所有者为当前用户 (`DESKTOP-F444QLG\admin`)。
+
+3. **使用管理员权限运行 Git**
+   在终端中以管理员身份运行 Git 命令，这样所有权匹配会通过。
+
+4. **禁用安全检查（不推荐）**
+   如果你确定环境安全并且不想每次都配置安全目录，可以禁用所有者检查：
+
+```bash
+git config --global safe.directory '*'
+```
+
+**注意**：这可能降低安全性，仅在受信环境中使用。
+
+尝试上述方法后，再次运行 `git status`，问题应会解决。
+
 ## bash开代理加速push
 
 我的git bash推送到远程仓库很慢，我用clash开了代理，我可以使用代理吗？ 
