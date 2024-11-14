@@ -83,7 +83,7 @@ CH340 是一款常用的 USB 转串口芯片，用于将开发板通过 USB 接�
 
 - 打开设备管理器，再一次通过usb接口连接开发板和电脑，查看端口情况
 
-![image-20241006223849248](C:\Users\admin\Desktop\个人博客\ESP32 WROOM开发板 CH340驱动芯片.assets\image-20241006223849248.png)
+![image-20241112222005150](C:\Users\admin\Desktop\个人博客\嵌入式相关博客\ESP32 WROOM开发板 CH340驱动芯片.assets\image-20241112222005150.png)
 
 ### **安装开发环境**
 
