@@ -917,3 +917,24 @@ git restore --source=HEAD -- .
 ```
 
 工作区所有的追踪的修改都会撤回，删除的，修改的。。。
+
+# git日志的快捷键
+
+```c
+alias.llg=log --color --graph --pretty=format:'%Cred%h%Creset - %C(yellow)%d%Cre
+set %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all
+alias.lg=log --color --graph --pretty=format:'%Cred%h%Creset - %C(yellow)%d%Cres
+et %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --max-count=10
+```
+
+翻页：
+
+- 空格键：向下翻一页
+- `b`：向上翻一页
+- 上下箭头键：逐行滚动
+- `d`：向下翻半页
+- `u`：向上翻半页
+
+退出日志：
+
+- 按 `q` 键可以直接退出日志界面
