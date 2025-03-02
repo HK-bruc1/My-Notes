@@ -45,110 +45,154 @@
 void ledX_on(u8 ledNum)
 ```
 
-# 新建基于STM32F40x固件库的MDK5工程模板
+## keil安装目录文件结构
 
-## 新建工程模板 
+**我想问你一下，KEIL5的安装目录结构，我安装了C51和ARM两个版本，PACK安装了F1xx和F4xx芯片支持包**
 
-在建立工程之前，我们建议用户在电脑的某个目录下面建立一个文件夹，后面所建立的工程都可以放在这个文件夹下面，这里我们建立一个文件夹为工程模板。 这是工程的根目录文件夹。然后为了方便我们存放工程需要的一些其他文件，这里我们还新建下面 5 个子文件夹： `CORE ,FWLIB,OBJ,SYSTEM,USER`。至于这些文件夹名字，实际上是可以任取的，我们这样取名只是为了方便识别。对于这些文件夹用来存放什么文件，我们后面的步骤会一一提到。
+假设KEIL5安装在默认路径 C:\Keil_v5 下，以下是主要的目录结构：
 
-![image-20241130101301101](C:\Users\admin\Desktop\个人博客\嵌入式相关博客\32单片机学习\keil5软件说明.assets\image-20241130101301101.png)
-
-接下来， 打开 Keil,点击 Keil 的菜单： Project –>New Uvision Project ，然后将目录定位到刚才建立的文件夹 Template 之下的 USER 子目录， 同时，工程取名为 Template 之后点击保存，**我们的工程文件就都保存到 USER 文件夹下面。**  
-
-接下来会出现一个选择 Device 的界面，就是选择我们的芯片型号，这里我们定位到STMicroelectronics 下面的 STM32F407VG。这里我们选择 STMicroelectronics STM32F4 SeriesS TM32F407 STM32F407ZG（如果使用的是其他系列的芯片，选择相应的型号就可以了， 例如我们的战舰 STM32 开发板是STM32F407VGT6。 特别注意： 一定要安装对应的器件 pack (**芯片支持包**)才会显示这些内容哦！！）。  
-
-选择芯片后点击 OK， MDK 会弹出 Manage Run-Time Environment 对话框 ：
-
-![image-20241130101859201](C:\Users\admin\Desktop\个人博客\嵌入式相关博客\32单片机学习\keil5软件说明.assets\image-20241130101859201.png)
-
-这是 MDK5 新增的一个功能，在这个界面，我们可以添加自己需要的组件，从而方便构建开发环境，不过这里我们不做介绍。我们直接点击 Cancel，即可  。
-
-现在我们看看 USER 目录下面包含 2 个文件  ：
-
-![image-20241130102008761](C:\Users\admin\Desktop\个人博客\嵌入式相关博客\32单片机学习\keil5软件说明.assets\image-20241130102008761.png)
-
-这里我们说明一下， Template.uvprojx 是工程文件，非常关键，不能轻易删除， MDK51.4生成的工程文件是以.uvprojx 为后缀。 Listings 和 Objects 文件夹是 MDK 自动生成的文件夹，用于存放编译过程产生的中间文件。这里，我们把两个文件夹删除，我们会在下一步骤中新建一个 OBJ 文件夹，用来存放编译中间文件。当然，我们不删除这两个文件夹也是没有关系的，只是我们不用它而已。  
-
-下面我们要将**官方的固件库包里的源码文件复制到我们的工程目录文件夹下面**。打开官方固件库包，定位到我们之前准备好的固件库包的目录: \STM32F4xx_DSP_StdPeriph_Lib_V1.4.0\Libraries\STM32F4xx_StdPeriph_Driver （**库函数开发**）下面，将目录下面的 src,inc 文件夹 copy 到我们刚才建立的 FWLib 文件夹下面。src 存放的是固件库的.c 文件， inc 存放的是对应的.h 文件，您不妨打开这两个文件目录过目一下里面的文件，每个外设对应一个.c 文件和一个.h 头文件。 （**要什么就留什么，寄存器开发就把STM32F4xx_StdPeriph_Driver删除，否则就留下**）。
-
-下面我们要将固件库包里面相关的**启动文件复制到我们的工程目录 CORE 之下**。
-
-打开官方固件库包，定位到目录`\STM32F4xx_DSP_StdPeriph_Lib_V1.4.0\Libraries\CMSIS\Device\ST\STM32F4xx\Source\Templat es\arm` 下面，将文件 startup_stm32f40_41xxx.s 复制到 CORE 目录下面。然后定位到目录`\STM32F4xx_DSP_StdPeriph_Lib_V1.4.0\Libraries\CMSIS\Includ` ， 将 里 面 的 四 个 头 文 件 ： `core_cm4.h、 core_cm4_simd.h、 core_cmFunc.h` 以及 `core_cmInstr.h` 同样复制到 CORE 目录下面。现在看看我们的 CORE 文件夹下面的文件：
-
-![image-20241130102858564](C:\Users\admin\Desktop\个人博客\嵌入式相关博客\32单片机学习\keil5软件说明.assets\image-20241130102858564.png)
-
-接下来我们要复制工程模板需要的一些其他头文件和源文件到我们工程。首先定位到目录： `STM32F4xx_DSP_StdPeriph_Lib_V1.4.0\Libraries\CMSIS\Device\ST\STM32F4xx\Include` 将里面的 2 个头文件 `stm32f4xx.h` 和 `system_stm32f4xx.h` 复制到 USER 目录之下。 这两个头文件是STM32F4 工程非常关键的两个头文件。后面我们讲解相关知识的时候会给大家详细讲解。然后进入目录`\STM32F4xx_DSP_StdPeriph_Lib_V1.4.0\Project\STM32F4xx_StdPeriph_Templates` ，将 目 录 下 面 的 5 个 文 件 `main.c ， stm32f4xx_conf.h ， stm32f4xx_it.c ， stm32f4xx_it.h ， system_stm32f4xx.c` 复制到 USER 目录下面。   
-
-## 提取内核文件后的关联
-
-前面 7 个步骤，我们将需要的固件库相关文件复制到了我们的工程目录下面，下面我们将这些文件加入我们的工程中去。右键点击 Target1，选择 Manage Project Items，  在 Groups 一栏删掉一个 Source Group1，建立三个 Groups： USER,CORE,FWLIB(**也只有这三个文件夹中提取了文件**)。然后点击 OK，可以看到我们的 Target名字以及 Groups 情况如下图  :
-
-![image-20241130103712743](C:\Users\admin\Desktop\个人博客\嵌入式相关博客\32单片机学习\keil5软件说明.assets\image-20241130103712743.png)
-
-下面我们往 Group 里面添加我们需要的文件。我们按照步骤 9 的方法， 右键点击点击Tempate，选择选择 Manage Project Items.然后选择需要添加文件的 Group，这里第一步我们选择 FWLIB，然后点击右边的 Add Files,定位到我们刚才建立的目录\FWLIB\src 下面，将里面所有的文件选中(Ctrl+A)，然后点击 Add，然后 Close 可以看到 Files 列表下面包含我们添加的文件：
-
-**这里有个文件 stm32f4xx_fmc.c 比较特殊。这个文件是 STM32F42 和 STM32F43 系列才用到，所以我们这里要把它删掉（注意是 stm32f4xx_fmc.c 要删掉，不要删掉 stm32f4xx_fsmc.c）。**   
-
-![image-20241130104026486](C:\Users\admin\Desktop\个人博客\嵌入式相关博客\32单片机学习\keil5软件说明.assets\image-20241130104026486.png)
-
-**这里需要说明一下，对于我们写代码，如果我们只用到了其中的某个外设，我们就可以不用添加没有用到的外设的库文件。例如我只用 GPIO，我可以只用添加 stm32f4xx_gpio.c 而其他的可以不用添加。这里我们全部添加进来是为了后面方便，不用每次添加，当然这样的坏处是工程太大，编译起来速度慢，用户可以自行选择。**  
-
-
-
-用同样的方法，将 Groups 定位到 CORE 和 USER 下面，添加需要的文件。这里我们的 CORE 下面需要添加的文件为 startup_stm32f40_41xxx.s(注意，默认添加的时候文件类型为.c,也就是添加 startup_stm32f40_41xxx.s 启动文件的时候，你需要选择文件类型为 All files才能看得到这个文件)， USER 目录下面需要添加的文件为 main.c， stm32f4xx_it.c， system_stm32f4xx.c。 这样我们需要添加的文件已经添加到我们的工程中去了，最后点击 OK，回到工程主界面。
-
-**这里还是在USER文件夹下建立一个自己的inc和src以作区分吧！**固件库的就放在USER下即可。
-
-
-
-**接下来我们要在 MDK 里面设置头文件存放路径。也就是告诉 MDK 到那些目录下面去寻找包含了的头文件。这一步骤非常重要。如果没有设置头文件路径，那么工程会出现报错头文件路径找不到。** 
-
-在魔术棒中：
-![image-20241130104743972](C:\Users\admin\Desktop\个人博客\嵌入式相关博客\32单片机学习\keil5软件说明.assets\image-20241130104743972.png)
-
-这里我们需要添加的头文件路径包括： \CORE, \USER\以及\FWLIB\inc。这里大家务必要仔细，固件库存放的头文件子目录是\FWLIB\inc，不是 FWLIB\src。很多朋友都是这里弄错导致报很多奇怪的错误。  **都是提取内核文件后，有.h后缀的文件夹必须是直接包含关系，为了以后自己写的头文件也能找到，把USER下的inc也包含进来。**
-
-
-
-接下来对于 STM32F40 系列的工程，还需要添加一个全局宏定义标识符。添加方法是点击魔术棒之后，进入 
-
-C/C++选项卡，然后在 Define 输入框连输入：STM32F40_41xxx,USE_STDPERIPH_DRIVER。注意这里是两个标识符 STM32F40_41xxx和 USE_STDPERIPH_DRIVER， 他们之间是用逗号隔开的，请大家注意。
-
-
-
-接下来我们要编译工程，在编译之前我们首先要选择编译中间文件编译后存放目录。方法是点击魔术棒 ，然后选择“
-
-Output”选项下面的“Select folder for objects…” ,然后选择目录为我们上面新建的 OBJ 目录。 同时将下方的三个选项框都勾上。
-
-不选择的话会默认在C:\Users\admin\Desktop\基于F40X库函数的工程模板\USER\Objects，因为创建工程是在USER中。
-
-**这里说明一下步骤 4 的意义。 Create HEX File 选项选上是要求编译之后生成 HEX 文件。Browse Information 选项选上是方便我们查看工程中的一些函数变量定义**  
-
-
-
-在编译之前，我们先把 main.c 文件里面的内容替换为如下内容  ：
-
-```c
-#include "stm32f4xx.h"                  // Device header
-
-int main(){
-
-	while(1){
-		
-	}
-}
+```
+C:\Keil_v5
+├── ARM                    # ARM开发工具链
+│   ├── BIN                # ARM编译器、链接器等二进制文件
+│   ├── CMSIS              # ARM CMSIS标准文件
+│   ├── LIB                # ARM库文件
+│   └── ...
+├── C51                    # C51开发工具链（用于8051单片机）
+│   ├── BIN                # C51编译器、链接器等二进制文件
+│   ├── INC                # C51头文件
+│   ├── LIB                # C51库文件
+│   └── ...
+├── UV4                    # KEIL IDE主程序文件
+│   ├── UV4.exe            # uVision IDE可执行文件
+│   └── ...
+├── PACK                   # 芯片支持包（Device Family Pack）
+│   ├── STMicroelectronics # STMicroelectronics的PACK
+│   │   ├── STM32F1xx_DFP  # STM32F1系列芯片支持包
+│   │   │   └── <version>  # 具体版本号
+│   │   │       ├── CMSIS  # CMSIS文件
+│   │   │       ├── Device # 设备相关文件（启动代码、外设驱动等）
+│   │   │       └── ...
+│   │   └── STM32F4xx_DFP  # STM32F4系列芯片支持包
+│   │       └── <version>
+│   │           ├── CMSIS
+│   │           ├── Device
+│   │           └── ...
+│   └── ...                # 其他厂商的PACK
+├── Examples               # 示例项目（可能在PACK内或单独目录）
+├── Documentation          # 文档和帮助文件
+└── ...
 ```
 
-与此同时，我们要将 USER 分组下面的 stm32f4xx_it.c 文件内容清空。  
+### 关键目录说明
 
-下面我们点击编译按钮 编译工程，可以看到工程编译通过没有任何错误和警告。  
+1. ARM 目录
+   - 这是ARM Cortex-M系列的开发工具链所在位置，包含以下子目录：
+     - BIN：存放ARM编译器（如armcc或armclang）、链接器等可执行文件。
+     - CMSIS：包含ARM官方的CMSIS（Cortex微控制器软件接口标准）文件。
+     - LIB：存放ARM相关的库文件。
+   - 这个目录支持你开发基于ARM架构的程序，例如STM32系列芯片。
+2. C51 目录
+   - 这是8051单片机的开发工具链所在位置，包含以下子目录：
+     - BIN：存放C51编译器、汇编器等可执行文件。
+     - INC：存放C51相关的头文件。
+     - LIB：存放C51相关的库文件。
+   - 这个目录支持你开发基于8051架构的单片机程序
+3. UV4 目录
+   - 包含KEIL5 IDE的主程序文件，例如 UV4.exe，这是你启动KEIL5时运行的可执行文件。
+4. PACK 目录
+   - 这是芯片支持包（Device Family Pack, DFP）的安装位置，用于扩展KEIL5对特定芯片的支持。
+   - 你安装了STM32F1xx和STM32F4xx的支持包，它们位于：
+     - PACK\STMicroelectronics\STM32F1xx_DFP：支持STM32F1系列芯片。
+     - PACK\STMicroelectronics\STM32F4xx_DFP：支持STM32F4系列芯片。
 
-到这里，一个基于固件库 V1.4 的工程模板就建立完成，同时在工程的 OBJ 目录下面生成了对应的 hex 文件(没有写东西可能没有)。
+### 针对你的安装情况
 
+- **C51和ARM两个版本**
+   你安装了C51和ARM工具链，因此在 C:\Keil_v5 下会有独立的 C51 和 ARM 目录，分别支持8051单片机和ARM Cortex-M系列的开发。
+- F1xx和F4xx芯片支持包这两个支持包安装在 `PACK\STMicroelectronics` 下，分别对应：
+  - STM32F1xx_DFP：支持STM32F1系列（如STM32F103）。
+  - STM32F4xx_DFP：支持STM32F4系列（如STM32F407）。 这些文件夹包含了启动代码、外设驱动和示例项目，方便你在开发STM32F1和F4系列芯片时使用。
 
+### 想要编译运行需要安装的东西
 
-这里还有个非常重要的关键点，就是系统时钟的配置，这在我们的系统时钟章节 4.3 会详细讲解，这里我们要修改 
+**所以编译ARM架构的单片机，需要下载KEIL,再下载ARMCC，对应芯片的DFP支持包。 这三者的关系为：keil本身只支持8051系列，想要支持ARM架构的单片机需要在安装一个ARMCC，DFP芯片支持包是用来选择芯片型号的，还需要一个对应单片机的固件库，里面包含了启动文件和对应芯片的时钟配置与描述**
 
-System_stm32f4xx.c 文件，把 PLL 第一级分频系数 M 修改为 8，这样达到主时钟频率为 168MHz。
+#### **KEIL IDE**
 
-未完待续！！！
+- **KEIL** 是一个集成开发环境（IDE），最初主要支持8051系列单片机（即C51工具链）。后来，KEIL被ARM公司收购，逐渐扩展了对ARM架构的支持。
+- KEIL IDE 本身是一个通用的开发平台，可以通过安装不同的工具链和支持包来支持多种微控制器架构，包括8051和ARM Cortex-M系列。
+- **重要说明**：如果你想开发ARM架构的单片机（如STM32），建议直接安装 **KEIL MDK（Microcontroller Development Kit）** 版本，因为它已经包含了ARMCC工具链，专门用于ARM Cortex-M和Cortex-R系列的开发。
+
+#### **ARMCC**
+
+- **ARMCC** 是ARM公司提供的编译器工具链，专门用于编译ARM架构的代码。它包括编译器、链接器等工具，负责将C/C++代码编译成ARM微控制器可执行的机器码。
+- 在KEIL中，如果你安装的是KEIL MDK版本，ARMCC工具链通常已经包含在内，无需额外下载。如果你安装的是KEIL C51版本（专门用于8051），则需要额外安装ARMCC工具链以支持ARM开发。
+
+#### **DFP（Device Family Pack）**
+
+- DFP
+
+   是设备家族包（Device Family Pack），为特定系列的微控制器提供支持。DFP包含以下内容：
+
+  - 启动代码（Startup Code）
+  - 系统文件（System Files）
+  - 头文件（Header Files）
+  - 基础外设驱动（Peripheral Drivers）
+
+- 在KEIL中，DFP允许你选择具体的芯片型号，并自动配置项目所需的启动文件和外设库。例如：
+
+  - STM32F1xx_DFP 支持 STM32F1 系列。
+  - STM32F4xx_DFP 支持 STM32F4 系列。
+
+- DFP 是 KEIL 的软件包管理系统（Pack）的一部分，可以通过 KEIL 的 Pack Installer 轻松安装和管理。
+
+#### **固件库（Firmware Library）**
+
+- 固件库是为特定微控制器系列提供的预编写代码库，通常由芯片厂商提供，旨在简化外设的使用和开发。例如：
+  - STMicroelectronics 为 STM32 系列提供了 **STM32Cube** 固件库。
+- 固件库通常包括：
+  - **启动文件**：负责系统初始化、堆栈设置等（通常由DFP提供，但固件库可能提供更灵活的版本）。
+  - **时钟配置**：用于配置微控制器的时钟系统。
+  - **外设驱动**：如 GPIO、UART、SPI 等的外设操作函数。
+  - **示例代码**：帮助开发者快速上手。
+- **重要说明**：固件库是可选的。如果你使用 DFP，DFP 已经包含了基本的启动文件和系统配置代码。但固件库（如 STM32Cube）提供了更高级的外设抽象和示例代码，方便开发者快速开发。
+
+#### DFP与标准外设固件库的关系
+
+**DFP与标准外设库的关系是什么？ 好像如果我不安装DFP的话，KEIL创建工程时并没有STM系列芯片选项，只有ARM系列。 安装了DFP之后，我选择STM芯片之后，会弹出一个界面，如果在这上面创建项目的话就是依赖DFP包是吗？如果我点击关闭，我从标准外设库STM32F4xx_DSP_StdPeriph_Lib_V1.4.0提取启动文件和时钟配置文件才能编译项目吧？**
+
+DFP的作用：
+
+- DFP是芯片支持包，包含了特定芯片系列的基本支持文件
+- 提供芯片的启动文件、链接脚本、寄存器定义等底层支持
+- 让KEIL能够识别并支持特定的STM32芯片型号
+- 提供基本的硬件抽象层(HAL)支持
+
+标准外设库(Standard Peripheral Library)：
+
+- 是ST公司提供的一层固件库
+- 提供了更高层的外设驱动API
+- 包含了各种外设的初始化和操作函数
+- 让开发者能更方便地操作外设，而不用直接操作寄存器
+
+关于工程创建：
+
+- 不安装DFP时只显示ARM系列是正常的，因为缺少STM32的支持文件
+- 安装DFP后创建项目时弹出的界面是用于配置DFP基础支持的
+- 如果使用这个界面创建，项目会基于DFP包构建
+- 如果关闭该界面，则需要手动从标准外设库中添加必要文件：
+  - 启动文件(startup_stm32f4xx.s)
+  - 系统配置文件(system_stm32f4xx.c)
+  - CMSIS核心文件
+  - 外设库文件等
+
+两种开发方式：
+
+- 基于DFP：更现代的方式，维护更新较好
+- 基于标准外设库：传统方式，**代码相对稳定**
+
+总的来说，DFP提供基础芯片支持，而标准外设库提供了更高层的API。两者可以独立使用，也可以结合使用。你的理解是正确的，如果不使用DFP创建向导，就需要手动添加标准外设库中的必要文件。
+
+需要补充说明的是，现在ST官方更推荐使用HAL库替代旧的标准外设库，HAL库提供了更好的兼容性和可移植性。但如果你的项目本来就是基于标准外设库的，继续使用也完全没问题。
+
