@@ -64,7 +64,7 @@ Linux下进程通信主要包括6种通信方式：管道、信号、消息队�
 
 ### 无名管道的特点
 
-半双工通信：数据只能单向流动，通常一个进程写，另一个进程读。
+单向通信：数据只能单向流动，通常一个进程写，另一个进程读。
 
 - **调用pipe(int fd[2])时，写入文件描述符时，就已经固定死了方向。**
 
@@ -432,6 +432,149 @@ int main(int argc, char *argv[]) {
 ![image-20250304201314171](./P8_进程间的通信IPC.assets/image-20250304201314171.png)
 
 管道通信是基于内存的，速度较快，适合高频、小数据量的通信。
+
+### 示例
+
+我们将创建两个独立的 C 程序：一个 **writer** (写入者) 和一个 **reader** (读取者)。它们将通过一个命名管道进行通信。
+
+`writer.c` (写入者)
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#define FIFO_PATH "/tmp/my_named_pipe"
+#define BUFFER_SIZE 1024
+
+int main() {
+    int fd;
+    char buffer[BUFFER_SIZE];
+
+    // 1. 创建命名管道 (如果它不存在)
+    if (mkfifo(FIFO_PATH, 0666) == -1) {
+        perror("mkfifo failed");
+        // 如果管道已经存在，mkfifo 会返回 -1 并且 errno 设置为 EEXIST，
+        // 这通常不是一个错误，可以继续。
+        // 其他错误则需要处理。
+        if (errno != EEXIST) {
+            exit(EXIT_FAILURE);
+        } else {
+            printf("命名管道 '%s' 已经存在。\n", FIFO_PATH);
+        }
+    } else {
+        printf("命名管道 '%s' 创建成功。\n", FIFO_PATH);
+    }
+
+    // 2. 打开命名管道以进行写入 (阻塞直到有读取者打开)
+    printf("正在打开命名管道 '%s' 以进行写入...\n", FIFO_PATH);
+    fd = open(FIFO_PATH, O_WRONLY);
+    if (fd == -1) {
+        perror("open failed for writing");
+        exit(EXIT_FAILURE);
+    }
+    printf("命名管道 '%s' 已成功打开以进行写入。\n", FIFO_PATH);
+
+    // 3. 循环读取用户输入并写入到命名管道
+    while (1) {
+        printf("请输入要发送的消息 (输入 'quit' 退出): ");
+        fgets(buffer, BUFFER_SIZE, stdin);
+
+        // 移除字符串末尾的换行符,fgets会自动加
+        buffer[strcspn(buffer, "\n")] = 0;
+
+        // 检查是否退出
+        if (strcmp(buffer, "quit") == 0) {
+            break;
+        }
+
+        // 4. 写入数据到命名管道
+        ssize_t bytes_written = write(fd, buffer, strlen(buffer));
+        if (bytes_written == -1) {
+            perror("write failed");
+            break;
+        } else {
+            printf("成功写入 %zd 字节到命名管道: '%s'\n", bytes_written, buffer);
+        }
+    }
+
+    // 5. 关闭命名管道
+    if (close(fd) == -1) {
+        perror("close failed for writing end");
+    }
+    printf("命名管道写入端已关闭。\n");
+
+    // 6. 可选：删除命名管道
+    // 注意：通常由创建者负责删除，或者在不再需要时删除。
+    if (unlink(FIFO_PATH) == -1) {
+        perror("unlink failed");
+    } else {
+        printf("命名管道 '%s' 已删除。\n", FIFO_PATH);
+    }
+
+    return 0;
+}
+```
+
+`reader.c` (读取者)
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#define FIFO_PATH "/tmp/my_named_pipe"
+#define BUFFER_SIZE 1024
+
+int main() {
+    int fd;
+    char buffer[BUFFER_SIZE];
+    ssize_t bytes_read;
+
+    // 1. 打开命名管道以进行读取 (阻塞直到有写入者打开)
+    printf("正在打开命名管道 '%s' 以进行读取...\n", FIFO_PATH);
+    fd = open(FIFO_PATH, O_RDONLY);
+    if (fd == -1) {
+        perror("open failed for reading");
+        exit(EXIT_FAILURE);
+    }
+    printf("命名管道 '%s' 已成功打开以进行读取。\n", FIFO_PATH);
+
+    // 2. 循环从命名管道读取数据并打印
+    while (1) {
+        bytes_read = read(fd, buffer, BUFFER_SIZE - 1);
+        if (bytes_read == -1) {
+            perror("read failed");
+            break;
+        } else if (bytes_read == 0) {
+            // 当写入端关闭时，read 返回 0
+            printf("写入端已关闭，读取结束。\n");
+            break;
+        } else {
+            buffer[bytes_read] = '\0'; // Null-terminate the buffer
+            printf("从命名管道接收到消息: '%s'\n", buffer);
+        }
+    }
+
+    // 3. 关闭命名管道
+    if (close(fd) == -1) {
+        perror("close failed for reading end");
+    }
+    printf("命名管道读取端已关闭。\n");
+
+    return 0;
+}
+```
+
+
 
 ## 标准流管道
 

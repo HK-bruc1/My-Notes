@@ -40,9 +40,9 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
 
 - ptr：存储读取数据的缓冲区。
 
-- size：每个数据块的大小。
+- size：每个元素的字节大小
 
-- nmemb：数据块的数量。
+- nmemb：元素的个数。
 
 - stream：文件流。
 
@@ -382,6 +382,8 @@ char *fgets(char *s, int size, FILE *stream);
 
 - s：存储数据的缓冲区。
 - size：缓冲区的最大容量（包括终止符 \0）。
+  - 他会自动加上\0所以包括
+
 - stream：文件流。
 
 **行为**：
@@ -410,8 +412,8 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
 **参数说明**：
 
 - ptr：存储数据的缓冲区。
-- size：每个数据块的大小。
-- nmemb：希望读取的数据块数量。
+- size：每个元素的字节大小。
+- nmemb：元素的个数。
 - stream：文件流。
 
 **行为**：
